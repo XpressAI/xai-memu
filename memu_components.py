@@ -60,7 +60,7 @@ class MemURememberConversation(Component):
                 convo += f"\n\n{turn['role']}: {turn['content']}"
 
         memo_response = memu_client.memorize_conversation(
-            conversation=convo
+            conversation=convo,
             user_id=self.user_id.value, 
             user_name=self.user_name.value, 
             agent_id=self.agent_id.value, 
