@@ -36,12 +36,12 @@ class MemUAuthorize(Component):
 class MemURememberConversation(Component):
     """A component to save and track conversation memories using MemU API."""
     
-    question: InArg[str]
-    response: InArg[str]
+    conversation: InArg[list]
     user_id: InArg[str]
     user_name: InArg[str]
     agent_id: InArg[str]
     agent_name: InArg[str]
+    status: OutArg[str]
 
     def execute(self, ctx) -> None:
         """Execute the memory saving process."""
@@ -50,23 +50,29 @@ class MemURememberConversation(Component):
         
         if not memu_client:
             print("Error: MemU client is not authorized. Please run MemUAuthorize first.")
-            return
+            raise 'MemUAuthorize missing'
 
-        # Save to MemU
+        convo = ""
+        for turn in self.conversation.value:
+            if isinstance(turn, str):
+                convo += f"\n\n{turn}"
+            else:
+                convo += f"\n\n{turn['role']}: {turn['content']}"
+
         memo_response = memu_client.memorize_conversation(
-            conversation=f"user: {self.question.value}\n\nassistant: {self.response.value}",
+            conversation=convo
             user_id=self.user_id.value, 
             user_name=self.user_name.value, 
             agent_id=self.agent_id.value, 
             agent_name=self.agent_name.value
         )
-        print(f"💾 Saved! Task ID: {memo_response.task_id}")
 
         # Wait for completion
         while True:
             status = memu_client.get_task_status(memo_response.task_id)
-            print(f"Task status: {status.status}")
+            #print(f"Task status: {status.status}")
             if status.status in ['SUCCESS', 'FAILURE', 'REVOKED']:
+                self.status.value = status.status
                 break
             time.sleep(2)
 
