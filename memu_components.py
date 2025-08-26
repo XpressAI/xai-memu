@@ -106,6 +106,14 @@ class MemURetrieveMemories(Component):
         self.memories.value = memories.related_memories
 
 
+class Memory(abc.ABC):
+    def query(self, query: str, n: int) -> list:
+        pass
+
+    def add(self, id: str, text: str, metadata: dict) -> None:
+        pass
+
+
 @xai_component
 class MemUAgentMemory(Component):
     """Creates a memory interface for the agent to store and query information using MemU API.
@@ -115,7 +123,7 @@ class MemUAgentMemory(Component):
     """
 
     user_id: InArg[str]
-    memory: OutArg['Memory']  # Specify that this will be a Memory type
+    memory: OutArg[Memory]  # Specify that this will be a Memory type
 
     def execute(self, ctx) -> None:
         """Initialize the MemU client and set it as the memory for the agent."""
@@ -128,12 +136,6 @@ class MemUAgentMemory(Component):
         self.memory.value = MemUClientMemory(memu_client, user_id)
 
 
-class Memory(abc.ABC):
-    def query(self, query: str, n: int) -> list:
-        pass
-
-    def add(self, id: str, text: str, metadata: dict) -> None:
-        pass
 
 class MemUClientMemory(Memory):
     """Memory implementation using the MemU client."""
