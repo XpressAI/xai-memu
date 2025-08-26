@@ -133,7 +133,7 @@ class MemUAgentMemory(Component):
             print("Error: MemU client is not authorized. Please run MemUAuthorize first.")
             return
         
-        self.memory.value = MemUClientMemory(memu_client, user_id)
+        self.memory.value = MemUClientMemory(memu_client, self.user_id.value)
 
 
 
